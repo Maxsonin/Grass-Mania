@@ -6,6 +6,9 @@ add_subdirectory("dependencies/glfw")
 add_subdirectory("dependencies/glm")
 add_subdirectory("dependencies/gl3w")
 
-add_executable(GrassMania src/main.cpp)
+# Automatically add all files from the src directory
+file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS src/*.*)
+
+add_executable(GrassMania ${MY_SOURCES})
 
 target_link_libraries(GrassMania PUBLIC glfw glm gl3w)

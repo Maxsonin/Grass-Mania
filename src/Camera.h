@@ -8,24 +8,26 @@
 class Camera
 {
 private:
-	glm::vec3 m_UpVector = { 0.0f, 1.0f, 0.0f }; // Up direction is positive Y axis
-	glm::vec3 m_Eye;							 // Camera position
-	glm::vec3 m_DirectionToLook;				 // Camera is looking in this direction
+	glm::vec3 m_UpVector = { 0.0f, 1.0f, 0.0f };
+	glm::vec3 m_CameraPosition;	// Eye
+	glm::vec3 m_DirectionToLook;				 
 public:
-	Camera(glm::vec3 eye, glm::vec3 directionToLook);
+	Camera(glm::vec3 cameraPosition, glm::vec3 pointToLookAt)
+		: m_CameraPosition(cameraPosition), m_DirectionToLook(pointToLookAt - m_CameraPosition) {}
 
 	glm::mat4 getProjectionMatrix(int windowWidth, int windowHeight)
 	{
-		return glm::perspective(m_FOV, (float)windowWidth/windowHeight, m_NEAR, m_FAR)
+		float aspectRatio = (float)windowWidth / windowHeight;
+		return glm::perspective(glm::radians((float)m_FOV), aspectRatio, m_NEAR, m_FAR);
 	}
 	glm::mat4 getViewMatrix()
 	{
-		return glm::lookAt(m_Eye, m_Eye + m_DirectionToLook, m_UpVector);
+		return glm::lookAt(m_CameraPosition, m_CameraPosition + m_DirectionToLook, m_UpVector);
 	}
 
-	unsigned int m_FOV = 60;
+	int			m_FOV  = 60;
 	const float m_NEAR = 0.01f;
-	const float m_FAR = 1000.0f;
+	const float m_FAR  = 1000.0f;
 };
 
 #endif

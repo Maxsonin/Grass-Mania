@@ -12,3 +12,5 @@ file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS src/*.*)
 add_executable(GrassMania ${MY_SOURCES})
 
 target_link_libraries(GrassMania PUBLIC glfw glm gl3w)
+
+file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ./)

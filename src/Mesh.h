@@ -17,10 +17,10 @@ private:
     GLuint m_VBOrendererID;
 
 public:
+    Mesh() = default;
     Mesh(const std::string& filepath)
     {
-        OBJLoader loader;
-        loader.LoadOBJ(filepath, vertices);
+        OBJLoader::LoadOBJ(filepath, vertices);
 
         // Vertex Array Initialization
         glGenVertexArrays(1, &m_VAOrendererID);
@@ -41,12 +41,6 @@ public:
         // Unbind everything
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
-
-    ~Mesh()
-    {
-        glDeleteBuffers(1, &m_VBOrendererID);
-        glDeleteVertexArrays(1, &m_VAOrendererID);
     }
 
     void Render(ShaderProgram& shaderProgram)

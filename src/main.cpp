@@ -3,8 +3,20 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
+#include "Debugging.h"
+
 #include "Mesh.h"
 #include "Camera.h"
+#include "GrassRenderer.h"
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+
+    // Retrieve the Camera pointer from the window user pointer
+    Camera* camera = static_cast<Camera*>(glfwGetWindowUserPointer(window));
+    if (camera) { camera->UpdateProjectionMatrix(width, height); }
+}
 
 int main()
 {
@@ -16,6 +28,12 @@ int main()
         exit(EXIT_FAILURE);
     }
 
+    // Set GLFW window properties
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_DEPTH_BITS, 32);
+
     const unsigned int WINDOW_WIDTH  = 1000;
     const unsigned int WINDOW_HEIGHT = 1000;
     GLFWwindow* applicationWindow = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Grass Mania", NULL, NULL);
@@ -25,7 +43,6 @@ int main()
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-
     glfwMakeContextCurrent(applicationWindow);
 
     if (gl3wInit())
@@ -34,45 +51,61 @@ int main()
         exit(EXIT_FAILURE);
     }
 
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glfwSetFramebufferSizeCallback(applicationWindow, framebuffer_size_callback);
+
     // Settings
     glEnable(GL_DEPTH_TEST);
+
+    glfwSwapInterval(0); // Disable V-Sync
 
 #pragma endregion
 
     glm::vec3 cameraPosition = { -1.0f, 0.0f, 0.0f };
-    glm::vec3 targetToLook   = { 0.0f, 0.0f, 0.0f };
-    Camera camera(cameraPosition, targetToLook);
+    glm::vec3 targetToLook = { 0.0f, 0.0f, 0.0f };
+    Camera camera(cameraPosition, targetToLook, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    Mesh grass("./resources/models/grass.obj");
+    // Pass the Camera pointer to the GLFW window
+    glfwSetWindowUserPointer(applicationWindow, &camera);
 
+    GrassRenderer grassRenderer(&camera);
+
+    static int frameCount = 0, FPS = 0;
+    static double previousTime = 0.0, deltaTime = 1.0;        // For FPS count
+    static double previousTimeFrame = 0.0, elapsedTime = 0.0; // For between frame time
     while (!glfwWindowShouldClose(applicationWindow))
     {
+        // Update deltaTime
+        deltaTime = glfwGetTime() - previousTimeFrame;
+        previousTimeFrame = glfwGetTime();
+
         // PRE DRAW
         glfwPollEvents();
+        camera.ProcesssInputs(applicationWindow, deltaTime);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    
-        // MAIN RANDERING LOGIC
-        ShaderProgram mainShaderProgram("MainShader", "./resources/shaders/MainVertex.glsl", "./resources/shaders/MainFragment.glsl");
 
-        mainShaderProgram.Bind();
+        // MAIN RENDERING LOGIC
+        glCheckError();
 
-        glm::mat4 modelMatrix(1.0f);
-        mainShaderProgram.setMat4("u_ModelMatrix", modelMatrix);
+        grassRenderer.Render();
 
-        glm::mat4 viewMatrix = camera.getViewMatrix();
-        mainShaderProgram.setMat4("u_ViewMatrix", viewMatrix);
-
-        glm::mat4 projectionMatrix = camera.getProjectionMatrix(WINDOW_WIDTH, WINDOW_HEIGHT);
-        mainShaderProgram.setMat4("u_ProjectionMatrix", projectionMatrix);
-
-        grass.Render(mainShaderProgram);  
-
-        mainShaderProgram.Unbind();
+        glCheckError();
 
         // AFTER DRAW
         glfwSwapBuffers(applicationWindow);
+
+        // FPS Counter
+        frameCount++;
+        elapsedTime = glfwGetTime() - previousTime;
+        if (elapsedTime >= 1.0) // 1 second
+        {
+            FPS = int(frameCount / elapsedTime);
+            previousTime = glfwGetTime(); frameCount = 0;
+
+            glfwSetWindowTitle(applicationWindow, ("Grass Mania | FPS: " + std::to_string(FPS)).c_str());
+        }
     }
 
 #pragma region CleanUp

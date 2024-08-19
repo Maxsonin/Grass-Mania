@@ -18,7 +18,7 @@ struct Vertex
 class OBJLoader
 {
 public:
-    void LoadOBJ(const std::string& filepath, std::vector<Vertex>& vertices)
+    static void LoadOBJ(const std::string& filepath, std::vector<Vertex>& vertices)
     {
         std::vector<glm::vec3> tempVertices;
         std::vector<glm::vec3> tempNormals;

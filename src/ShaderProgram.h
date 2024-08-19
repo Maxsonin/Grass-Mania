@@ -36,6 +36,7 @@ public:
 
 	std::unordered_map<std::string, GLint> m_UniformLocationCache;
 
+    ShaderProgram() = default;
 	ShaderProgram(const std::string& shaderName, const std::string& vertexShader, const std::string& fragmentShader);
 
 	void Bind()   const { glUseProgram(m_RendererID); }

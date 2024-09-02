@@ -17,6 +17,7 @@ private:
 	Camera* m_Camera;
 
 	std::vector<glm::vec3> m_GrassPositions;
+	std::vector<int>       m_GrassheightScaleFactor;
 public:
 	GrassRenderer(Camera* camera);
 	void Render();

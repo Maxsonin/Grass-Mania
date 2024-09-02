@@ -3,11 +3,11 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
-#include "Debugging.h"
+#include "Utility/Debugging.h"
 
-#include "Mesh.h"
+#include "GrassRendering/Mesh.h"
 #include "Camera.h"
-#include "GrassRenderer.h"
+#include "GrassRendering/GrassRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -61,8 +61,8 @@ int main()
 
 #pragma endregion
 
-    glm::vec3 cameraPosition = { -1.0f, 0.0f, 0.0f };
-    glm::vec3 targetToLook = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 cameraPosition = { 0.0f, 8.0f, 0.0f };
+    glm::vec3 targetToLook   = { 10.0f, 0.0f, 10.0f };
     Camera camera(cameraPosition, targetToLook, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     // Pass the Camera pointer to the GLFW window

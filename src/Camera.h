@@ -11,6 +11,7 @@
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 class Camera
 {
@@ -53,7 +54,7 @@ public:
 		// Basic Movements
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			m_CameraPosition += travelDistance * m_ViewDirection;
+			m_CameraPosition += travelDistance * glm::normalize(m_ViewDirection);
 		}
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		{
@@ -61,7 +62,7 @@ public:
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		{
-			m_CameraPosition += travelDistance * -m_ViewDirection;
+			m_CameraPosition += travelDistance * glm::normalize(-m_ViewDirection);
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		{
@@ -120,7 +121,7 @@ public:
 			glm::quat yaw = glm::angleAxis(glm::radians(-rotX), glm::vec3(0.0f, 1.0f, 0.0f));
 
 			// Update the view direction
-			m_ViewDirection = glm::rotate(yaw * pitch, m_ViewDirection);
+			m_ViewDirection = glm::normalize(glm::rotate(yaw * pitch, m_ViewDirection));
 		}
 		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE)
 		{

@@ -5,8 +5,9 @@
 
 #include <vector>
 
-#include "OBJLoader.h"
-#include "ShaderProgram.h"
+#include "../Utility/Debugging.h"
+#include "../Utility/OBJLoader.h"
+#include "../Utility/ShaderProgram.h"
 
 class Mesh
 {
@@ -14,7 +15,6 @@ private:
     std::vector<Vertex> vertices;
 
     GLuint m_VAOrendererID = 0;
-    GLuint m_VBOrendererID = 0;
 
 public:
     Mesh() = default;
@@ -28,8 +28,9 @@ public:
         glBindVertexArray(m_VAOrendererID);
 
         // Vertex Buffer Initialization
-        glGenBuffers(1, &m_VBOrendererID);
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBOrendererID);
+        GLuint VBOrendererID;
+        glGenBuffers(1, &VBOrendererID);
+        glBindBuffer(GL_ARRAY_BUFFER, VBOrendererID);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
         // Vertex Attributes Setup
@@ -42,12 +43,15 @@ public:
         // Unbind everything
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glCheckError();
     }
 
     void Render(ShaderProgram& shaderProgram)
     {
         shaderProgram.Bind(); glBindVertexArray(m_VAOrendererID);
         glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+        glCheckError();
     }
 };
 

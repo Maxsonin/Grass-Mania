@@ -4,7 +4,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "Camera.h"
+#include "../Camera.h"
 #include "Mesh.h"
 
 class GrassRenderer

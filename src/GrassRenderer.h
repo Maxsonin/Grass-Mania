@@ -7,7 +7,6 @@
 #include "Camera.h"
 #include "Mesh.h"
 
-
 class GrassRenderer
 {
 private:

@@ -13,11 +13,12 @@ class Mesh
 private:
     std::vector<Vertex> vertices;
 
-    GLuint m_VAOrendererID;
-    GLuint m_VBOrendererID;
+    GLuint m_VAOrendererID = 0;
+    GLuint m_VBOrendererID = 0;
 
 public:
     Mesh() = default;
+
     Mesh(const std::string& filepath)
     {
         OBJLoader::LoadOBJ(filepath, vertices);
@@ -47,7 +48,6 @@ public:
     {
         shaderProgram.Bind(); glBindVertexArray(m_VAOrendererID);
         glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-        glBindVertexArray(0); shaderProgram.Unbind();
     }
 };
 

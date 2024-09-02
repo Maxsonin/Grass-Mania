@@ -57,7 +57,7 @@ int main()
     // Settings
     glEnable(GL_DEPTH_TEST);
 
-    glfwSwapInterval(0); // Disable V-Sync
+    //glfwSwapInterval(0); // Disable V-Sync
 
 #pragma endregion
 

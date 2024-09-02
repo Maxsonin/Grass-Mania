@@ -16,23 +16,28 @@
 class Camera
 {
 private:
+	float m_Speed = 15.0f;
+	float pitch = 0.0f; float yaw = 0.0f;
+	float sensitivity = 0.1f;
+public:
 	glm::vec3 m_UpVector = { 0.0f, 1.0f, 0.0f };
 	glm::vec3 m_CameraPosition;	// Eye
-	glm::vec3 m_ViewDirection;		
+	glm::vec3 m_ViewDirection;	
 
-	float m_Speed	   = 15.0f;
-	const float m_NEAR = 0.01f;
+	// Frustum Related
+	glm::vec3 m_Right;
+
+	const float m_NEAR = 0.001f;
 	const float m_FAR  = 1000.0f;
-
-	float sensitivity = 0.1f;
 
 	glm::mat4 m_ProjectionMatrix;
 
-public:
 	int	m_FOV = 60;
 
 	Camera(glm::vec3 cameraPosition, glm::vec3 pointToLookAt, int windowWidth, int windowHeight)
-		: m_CameraPosition(cameraPosition), m_ViewDirection(pointToLookAt - m_CameraPosition) 
+		: m_CameraPosition(cameraPosition),
+		m_ViewDirection(pointToLookAt - m_CameraPosition),
+		m_Right(glm::cross(m_UpVector, m_ViewDirection))
 	{ UpdateProjectionMatrix(windowWidth, windowHeight); }
 
 	void UpdateProjectionMatrix(int windowWidth, int windowHeight)
@@ -40,8 +45,6 @@ public:
 		float aspectRatio = (float)windowWidth / windowHeight;
 		m_ProjectionMatrix = glm::perspective(glm::radians((float)m_FOV), aspectRatio, m_NEAR, m_FAR);	
 	}
-
-	glm::mat4 GetProjectionMatrix() const { return m_ProjectionMatrix; }
 	glm::mat4 GetViewMatrix() const
 	{
 		return glm::lookAt(m_CameraPosition, m_CameraPosition + m_ViewDirection, m_UpVector);
@@ -115,13 +118,23 @@ public:
 			float rotX = static_cast<float>(offsetX) * sensitivity;
 			float rotY = static_cast<float>(offsetY) * sensitivity;
 
-			// Create a quaternion representing the new orientation
-			glm::vec3 right = glm::normalize(glm::cross(m_ViewDirection, glm::vec3(0.0f, 1.0f, 0.0f)));
-			glm::quat pitch = glm::angleAxis(glm::radians(rotY), right);
-			glm::quat yaw = glm::angleAxis(glm::radians(-rotX), glm::vec3(0.0f, 1.0f, 0.0f));
+			// Update yaw and pitch
+			yaw += rotX;
+			pitch -= rotY; // Note: inverted for typical FPS behavior
+
+			// Clamp the pitch
+			if (pitch > 89.0f) pitch = 89.0f;
+			if (pitch < -89.0f) pitch = -89.0f;
 
 			// Update the view direction
-			m_ViewDirection = glm::normalize(glm::rotate(yaw * pitch, m_ViewDirection));
+			glm::vec3 front;
+			front.x = cos(glm::radians(yaw)) * cos(glm::radians(-pitch));
+			front.y = sin(glm::radians(-pitch));
+			front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+			m_ViewDirection = glm::normalize(front);
+
+			// Update the right vector
+			m_Right = glm::normalize(glm::cross(m_UpVector, m_ViewDirection));
 		}
 		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE)
 		{

@@ -6,6 +6,7 @@
 
 #include "../Camera.h"
 #include "Mesh.h"
+#include "../Utility/Frustum.h"
 
 class GrassRenderer
 {
@@ -15,6 +16,10 @@ private:
 	ShaderProgram m_GrassShaderProgram;
 
 	Camera* m_Camera;
+
+	int grassCount;
+
+	CameraFrustum frustum;
 
 	std::vector<glm::vec3> m_GrassPositions;
 	std::vector<int>       m_GrassheightScaleFactor;

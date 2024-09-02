@@ -61,8 +61,8 @@ int main()
 
 #pragma endregion
 
-    glm::vec3 cameraPosition = { 0.0f, 8.0f, 0.0f };
-    glm::vec3 targetToLook   = { 10.0f, 0.0f, 10.0f };
+    glm::vec3 cameraPosition = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 targetToLook   = { 1.0f, 0.0f, 0.0f };
     Camera camera(cameraPosition, targetToLook, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     // Pass the Camera pointer to the GLFW window

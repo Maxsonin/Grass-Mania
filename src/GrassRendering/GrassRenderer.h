@@ -25,7 +25,7 @@ private:
 	std::vector<int>       m_GrassheightScaleFactor;
 public:
 	GrassRenderer(Camera* camera);
-	void Render();
+	void Render(Camera* debugCam);
 };
 
 #endif

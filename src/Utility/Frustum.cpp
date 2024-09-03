@@ -4,7 +4,7 @@ CameraFrustum CreateFrustumOfCamera(const Camera& camera, float aspect)
 {
     CameraFrustum frustum;
 
-    const float halfVAngle = camera.m_FOV * 0.5f * 1.5;
+    const float halfVAngle = camera.m_FOV * 0.75f;
     const float halfHAngle = atanf(tanf(halfVAngle) * aspect);
 
     frustum.nearFace   = { camera.m_CameraPosition + camera.m_NEAR * camera.m_ViewDirection, camera.m_ViewDirection  };

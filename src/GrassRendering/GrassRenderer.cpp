@@ -35,14 +35,22 @@ GrassRenderer::GrassRenderer(Camera* camera)
     }
 }
 
-void GrassRenderer::Render()
+void GrassRenderer::Render(Camera* debugCam = nullptr)
 {
     frustum = CreateFrustumOfCamera(*m_Camera, 1.0f);
 
     m_GrassShaderProgram.Bind();
 
-    m_GrassShaderProgram.setMat4("u_ViewMatrix", m_Camera->GetViewMatrix());
-    m_GrassShaderProgram.setMat4("u_ProjectionMatrix", m_Camera->m_ProjectionMatrix);
+    if (debugCam != nullptr && debugCam->m_IsMain)
+    {
+        m_GrassShaderProgram.setMat4("u_ViewMatrix", debugCam->GetViewMatrix());
+        m_GrassShaderProgram.setMat4("u_ProjectionMatrix", debugCam->m_ProjectionMatrix);
+    }
+    else
+    {
+        m_GrassShaderProgram.setMat4("u_ViewMatrix", m_Camera->GetViewMatrix());
+        m_GrassShaderProgram.setMat4("u_ProjectionMatrix", m_Camera->m_ProjectionMatrix);
+    }
 
     m_GrassShaderProgram.setFloat("u_MinHeight", 5.0f); // Info from grass.obj
     m_GrassShaderProgram.setFloat("u_MaxHeight", 10.0f);
@@ -53,8 +61,8 @@ void GrassRenderer::Render()
         float scaleY = m_GrassheightScaleFactor[i];
 
         // Create AABB for the grass instance
-        glm::vec3 minPoint = grassPosition - glm::vec3(0.5f, 0.0f, 0.5f);
-        glm::vec3 maxPoint = grassPosition + glm::vec3(0.5f, scaleY, 0.5f);
+        glm::vec3 minPoint = grassPosition - glm::vec3(0.1f, 0.0f, 0.1f);
+        glm::vec3 maxPoint = grassPosition + glm::vec3(0.1f, scaleY, 0.1f);
         AABB grassAABB(minPoint, maxPoint);
 
         // Perform frustum culling

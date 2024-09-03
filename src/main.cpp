@@ -61,14 +61,16 @@ int main()
 
 #pragma endregion
 
-    glm::vec3 cameraPosition = { 0.0f, 0.0f, 0.0f };
-    glm::vec3 targetToLook   = { 1.0f, 0.0f, 0.0f };
-    Camera camera(cameraPosition, targetToLook, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glm::vec3 mainCamPosition = { 0.0f, 20.0f, 0.0f }; glm::vec3 mainCamTarget   = { 50.0f, 0.0f, 50.0f };
+    Camera mainCamera(mainCamPosition, mainCamTarget, WINDOW_WIDTH, WINDOW_HEIGHT, true);
+
+    glm::vec3 debugCamPosition = { 0.0f, 20.0f, 0.0f }; glm::vec3 debugCamTarget = { 50.0f, 0.0f, 50.0f };
+    Camera debugCamera(debugCamPosition, debugCamTarget, WINDOW_WIDTH, WINDOW_HEIGHT, false);
 
     // Pass the Camera pointer to the GLFW window
-    glfwSetWindowUserPointer(applicationWindow, &camera);
+    glfwSetWindowUserPointer(applicationWindow, &mainCamera);
 
-    GrassRenderer grassRenderer(&camera);
+    GrassRenderer grassRenderer(&mainCamera);
 
     static int frameCount = 0, FPS = 0;
     static double previousTime = 0.0, deltaTime = 1.0;        // For FPS count
@@ -81,15 +83,22 @@ int main()
 
         // PRE DRAW
         glfwPollEvents();
-        camera.ProcesssInputs(applicationWindow, deltaTime);
+        mainCamera.ProcesssInputs(applicationWindow, deltaTime);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+        // Camera Controll
+        if (glfwGetKey(applicationWindow, GLFW_KEY_C) == GLFW_PRESS)
+        {
+            mainCamera.m_IsMain = !mainCamera.m_IsMain;
+            debugCamera.m_IsMain = !debugCamera.m_IsMain;
+        }
+
         // MAIN RENDERING LOGIC
         glCheckError();
 
-        grassRenderer.Render();
+        grassRenderer.Render(&debugCamera);
 
         glCheckError();
 

@@ -17,12 +17,15 @@ class Camera
 {
 private:
 	float m_Speed = 15.0f;
-	float pitch = 0.0f; float yaw = 0.0f;
+	float pitch; float yaw;
 	float sensitivity = 0.1f;
+
 public:
 	glm::vec3 m_UpVector = { 0.0f, 1.0f, 0.0f };
 	glm::vec3 m_CameraPosition;	// Eye
 	glm::vec3 m_ViewDirection;	
+
+	bool m_IsMain;
 
 	// Frustum Related
 	glm::vec3 m_Right;
@@ -34,11 +37,18 @@ public:
 
 	int	m_FOV = 60;
 
-	Camera(glm::vec3 cameraPosition, glm::vec3 pointToLookAt, int windowWidth, int windowHeight)
+	Camera(glm::vec3 cameraPosition, glm::vec3 pointToLookAt, int windowWidth, int windowHeight, bool isMain)
 		: m_CameraPosition(cameraPosition),
-		m_ViewDirection(pointToLookAt - m_CameraPosition),
-		m_Right(glm::cross(m_UpVector, m_ViewDirection))
-	{ UpdateProjectionMatrix(windowWidth, windowHeight); }
+		m_ViewDirection(glm::normalize(pointToLookAt - m_CameraPosition)),
+		m_IsMain(isMain)
+	{
+		pitch = asin(m_ViewDirection.y);
+		yaw = atan2(m_ViewDirection.z, m_ViewDirection.x);
+
+		m_Right = glm::cross(m_UpVector, m_ViewDirection);
+
+		UpdateProjectionMatrix(windowWidth, windowHeight);
+	}
 
 	void UpdateProjectionMatrix(int windowWidth, int windowHeight)
 	{
@@ -52,6 +62,8 @@ public:
 
 	void ProcesssInputs(GLFWwindow* window, double deltaTime)
 	{
+		//std::cout << "Yaw: " << yaw << " Pitch: " << pitch << std::endl;
+
 		float travelDistance = m_Speed * (float)deltaTime;
 
 		// Basic Movements

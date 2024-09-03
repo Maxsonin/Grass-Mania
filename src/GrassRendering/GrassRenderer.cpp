@@ -13,6 +13,34 @@ GrassRenderer::GrassRenderer(Camera* camera)
     m_GrassMesh = Mesh("./resources/models/grass.obj");
 
     m_GrassShaderProgram = ShaderProgram("GrassShader", "./resources/shaders/GrassVertex.glsl", "./resources/shaders/GrassFragment.glsl");
+    m_WorldShaderProgram = ShaderProgram("WorldShader", "./resources/shaders/WorldVertex.glsl", "./resources/shaders/WorldFragment.glsl");
+
+    m_WorldShaderProgram.Bind();
+
+    float plane[] =
+    {
+        0.0f,  0.0f, 0.0f,
+        0.0f,  0.0f, 10.0f,
+        10.0f, 0.0f, 10.0f,
+
+        10.0f, 0.0f, 10.0f,
+        10.0f,  0.0f, 0.0f,
+        0.0f,  0.0f, 0.0f
+    };
+
+    GLuint worldVBO = 0;
+    glGenBuffers(1, &worldVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, worldVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
+
+    glGenVertexArrays(1, &worldVAO);
+    glBindVertexArray(worldVAO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glCheckError();
 
     float minX = 0.0f;
     float maxX = 150.0f;
@@ -38,6 +66,29 @@ GrassRenderer::GrassRenderer(Camera* camera)
 void GrassRenderer::Render(Camera* debugCam = nullptr)
 {
     frustum = CreateFrustumOfCamera(*m_Camera, 1.0f);
+
+    // Render the plane first
+    m_WorldShaderProgram.Bind();
+
+    glm::mat4 planeModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(15.0f, 1.0f, 15.0f));
+    m_WorldShaderProgram.setMat4("u_ModelMatrix", planeModelMatrix);
+    if (debugCam != nullptr && debugCam->m_IsMain)
+    {
+        m_WorldShaderProgram.setMat4("u_ViewMatrix", debugCam->GetViewMatrix());
+        m_WorldShaderProgram.setMat4("u_ProjectionMatrix", debugCam->m_ProjectionMatrix);
+    }
+    else
+    {
+        m_WorldShaderProgram.setMat4("u_ViewMatrix", m_Camera->GetViewMatrix());
+        m_WorldShaderProgram.setMat4("u_ProjectionMatrix", m_Camera->m_ProjectionMatrix);
+    }
+
+    glBindVertexArray(worldVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+    m_WorldShaderProgram.Unbind();
+
+    glCheckError();
 
     m_GrassShaderProgram.Bind();
 

@@ -1,6 +1,5 @@
 #ifndef FRUSTUM
 #define FRUSTUM
-// more: https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 
 #include <glm/glm.hpp>
 #include "../Camera.h"
@@ -48,5 +47,7 @@ struct AABB
 };
 
 CameraFrustum CreateFrustumOfCamera(const Camera& cam, float aspect);
+
+void drawFrustum(const CameraFrustum& frustum);
 
 #endif

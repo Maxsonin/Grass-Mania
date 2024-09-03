@@ -14,6 +14,7 @@ private:
 	Mesh m_GrassMesh;
 
 	ShaderProgram m_GrassShaderProgram;
+	ShaderProgram m_WorldShaderProgram;
 
 	Camera* m_Camera;
 
@@ -23,6 +24,9 @@ private:
 
 	std::vector<glm::vec3> m_GrassPositions;
 	std::vector<int>       m_GrassheightScaleFactor;
+
+	GLuint worldVAO;
+
 public:
 	GrassRenderer(Camera* camera);
 	void Render(Camera* debugCam);

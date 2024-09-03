@@ -39,7 +39,7 @@ public:
 
 	Camera(glm::vec3 cameraPosition, glm::vec3 pointToLookAt, int windowWidth, int windowHeight, bool isMain)
 		: m_CameraPosition(cameraPosition),
-		m_ViewDirection(glm::normalize(pointToLookAt - m_CameraPosition)),
+		m_ViewDirection(glm::normalize(pointToLookAt - m_CameraPosition) + glm::vec3(0.0f, 0.001f, 0.0f)),
 		m_IsMain(isMain)
 	{
 		pitch = asin(m_ViewDirection.y);

@@ -64,7 +64,7 @@ int main()
     glm::vec3 mainCamPosition = { 0.0f, 20.0f, 0.0f }; glm::vec3 mainCamTarget   = { 50.0f, 0.0f, 50.0f };
     Camera mainCamera(mainCamPosition, mainCamTarget, WINDOW_WIDTH, WINDOW_HEIGHT, true);
 
-    glm::vec3 debugCamPosition = { 0.0f, 20.0f, 0.0f }; glm::vec3 debugCamTarget = { 50.0f, 0.0f, 50.0f };
+    glm::vec3 debugCamPosition = { 80.0f, 150.0f, 80.0f }; glm::vec3 debugCamTarget = { 70.0f, 0.0f, 70.0f };
     Camera debugCamera(debugCamPosition, debugCamTarget, WINDOW_WIDTH, WINDOW_HEIGHT, false);
 
     // Pass the Camera pointer to the GLFW window

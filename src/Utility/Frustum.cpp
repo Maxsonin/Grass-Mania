@@ -1,5 +1,8 @@
 #include "Frustum.h"
 
+#include <GL/gl3w.h>
+#include <GLFW/glfw3.h>
+
 CameraFrustum CreateFrustumOfCamera(const Camera& camera, float aspect)
 {
     CameraFrustum frustum;
@@ -13,8 +16,8 @@ CameraFrustum CreateFrustumOfCamera(const Camera& camera, float aspect)
     frustum.rightFace  = { camera.m_CameraPosition, glm::rotate(camera.m_ViewDirection, halfHAngle,  camera.m_UpVector) };
     frustum.leftFace   = { camera.m_CameraPosition, glm::rotate(camera.m_ViewDirection, -halfHAngle, camera.m_UpVector) };
 
-    frustum.topFace    = { camera.m_CameraPosition, glm::rotate(camera.m_ViewDirection, -halfVAngle, camera.m_Right) };
-    frustum.bottomFace = { camera.m_CameraPosition, glm::rotate(camera.m_ViewDirection, halfVAngle,  camera.m_Right) };
+    frustum.topFace    = { camera.m_CameraPosition, glm::rotate(camera.m_ViewDirection, halfVAngle, camera.m_Right) };
+    frustum.bottomFace = { camera.m_CameraPosition, glm::rotate(camera.m_ViewDirection, -halfVAngle,  camera.m_Right) };
 
     return frustum;
 }
@@ -22,12 +25,9 @@ CameraFrustum CreateFrustumOfCamera(const Camera& camera, float aspect)
 bool AABB::isOnFrustum(const CameraFrustum& frustum) const
 {
     return (
-        isOnOrForwardPlane(frustum.leftFace) &&
-        isOnOrForwardPlane(frustum.rightFace) &&
-        isOnOrForwardPlane(frustum.topFace) &&
-        isOnOrForwardPlane(frustum.bottomFace) &&
-        isOnOrForwardPlane(frustum.nearFace) &&
-        isOnOrForwardPlane(frustum.farFace)
+        isOnOrForwardPlane(frustum.leftFace) && isOnOrForwardPlane(frustum.rightFace) &&
+        isOnOrForwardPlane(frustum.topFace) && isOnOrForwardPlane(frustum.bottomFace) &&
+        isOnOrForwardPlane(frustum.nearFace) && isOnOrForwardPlane(frustum.farFace)
         );
 }
 bool AABB::isOnOrForwardPlane(const Plane& plane) const
@@ -41,4 +41,9 @@ bool AABB::isOnOrForwardPlane(const Plane& plane) const
 float Plane::getSignedDistanceToPlane(const glm::vec3& point) const
 {
     return glm::dot(normal, point) - distanceToTheOrigin;
+}
+
+void drawFrustum(const CameraFrustum& frustum) 
+{
+
 }

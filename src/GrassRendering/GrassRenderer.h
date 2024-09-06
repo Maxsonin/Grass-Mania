@@ -15,6 +15,7 @@ private:
 
 	ShaderProgram m_GrassShaderProgram;
 	ShaderProgram m_WorldShaderProgram;
+	ShaderProgram m_CameraShaderProgram;
 
 	Camera* m_Camera;
 

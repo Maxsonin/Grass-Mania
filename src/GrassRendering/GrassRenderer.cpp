@@ -13,6 +13,8 @@ GrassRenderer::GrassRenderer(Camera* camera)
     m_GrassMesh = Mesh("./resources/models/grass.obj");
 
     m_GrassShaderProgram = ShaderProgram("GrassShader", "./resources/shaders/GrassVertex.glsl", "./resources/shaders/GrassFragment.glsl");
+    m_CameraShaderProgram = ShaderProgram("CameraShader", "./resources/shaders/CameraVertex.glsl", "./resources/shaders/CameraFragment.glsl");
+#pragma region plane
     m_WorldShaderProgram = ShaderProgram("WorldShader", "./resources/shaders/WorldVertex.glsl", "./resources/shaders/WorldFragment.glsl");
 
     m_WorldShaderProgram.Bind();
@@ -42,6 +44,8 @@ GrassRenderer::GrassRenderer(Camera* camera)
 
     glCheckError();
 
+#pragma endregion
+
     float minX = 0.0f;
     float maxX = 150.0f;
     float minZ = 0.0f;
@@ -65,8 +69,9 @@ GrassRenderer::GrassRenderer(Camera* camera)
 
 void GrassRenderer::Render(Camera* debugCam = nullptr)
 {
-    frustum = CreateFrustumOfCamera(*m_Camera, 1.0f);
+    frustum = CreateCameraFrustum(*m_Camera);
 
+#pragma region plane
     // Render the plane first
     m_WorldShaderProgram.Bind();
 
@@ -75,12 +80,12 @@ void GrassRenderer::Render(Camera* debugCam = nullptr)
     if (debugCam != nullptr && debugCam->m_IsMain)
     {
         m_WorldShaderProgram.setMat4("u_ViewMatrix", debugCam->GetViewMatrix());
-        m_WorldShaderProgram.setMat4("u_ProjectionMatrix", debugCam->m_ProjectionMatrix);
+        m_WorldShaderProgram.setMat4("u_ProjectionMatrix", debugCam->GetProjectionMatrix());
     }
     else
     {
         m_WorldShaderProgram.setMat4("u_ViewMatrix", m_Camera->GetViewMatrix());
-        m_WorldShaderProgram.setMat4("u_ProjectionMatrix", m_Camera->m_ProjectionMatrix);
+        m_WorldShaderProgram.setMat4("u_ProjectionMatrix", m_Camera->GetProjectionMatrix());
     }
 
     glBindVertexArray(worldVAO);
@@ -90,17 +95,32 @@ void GrassRenderer::Render(Camera* debugCam = nullptr)
 
     glCheckError();
 
+#pragma endregion
+
+    glCheckError();
+
+    if (m_Camera->m_IsMain)
+    {
+        drawFrustum(m_CameraShaderProgram.m_RendererID, m_Camera->GetViewMatrix(), m_Camera->GetProjectionMatrix(), *m_Camera);
+    }
+    else
+    {
+        drawFrustum(m_CameraShaderProgram.m_RendererID, debugCam->GetViewMatrix(), debugCam->GetProjectionMatrix(), *m_Camera);
+    }
+
+    glCheckError();
+
     m_GrassShaderProgram.Bind();
 
     if (debugCam != nullptr && debugCam->m_IsMain)
     {
         m_GrassShaderProgram.setMat4("u_ViewMatrix", debugCam->GetViewMatrix());
-        m_GrassShaderProgram.setMat4("u_ProjectionMatrix", debugCam->m_ProjectionMatrix);
+        m_GrassShaderProgram.setMat4("u_ProjectionMatrix", debugCam->GetProjectionMatrix());
     }
     else
     {
         m_GrassShaderProgram.setMat4("u_ViewMatrix", m_Camera->GetViewMatrix());
-        m_GrassShaderProgram.setMat4("u_ProjectionMatrix", m_Camera->m_ProjectionMatrix);
+        m_GrassShaderProgram.setMat4("u_ProjectionMatrix", m_Camera->GetProjectionMatrix());
     }
 
     m_GrassShaderProgram.setFloat("u_MinHeight", 5.0f); // Info from grass.obj
@@ -112,15 +132,12 @@ void GrassRenderer::Render(Camera* debugCam = nullptr)
         float scaleY = m_GrassheightScaleFactor[i];
 
         // Create AABB for the grass instance
-        glm::vec3 minPoint = grassPosition - glm::vec3(0.1f, 0.0f, 0.1f);
-        glm::vec3 maxPoint = grassPosition + glm::vec3(0.1f, scaleY, 0.1f);
+        glm::vec3 minPoint = grassPosition;
+        glm::vec3 maxPoint = grassPosition + glm::vec3(0.1f, 5.0f * scaleY, 0.3f);
         AABB grassAABB(minPoint, maxPoint);
 
         // Perform frustum culling
-        if (!grassAABB.isOnFrustum(frustum))
-        {
-            continue; // Skip rendering this grass mesh if it's outside the frustum
-        }
+        if (!grassAABB.isOnFrustum(frustum)) continue; // Skip rendering this grass mesh if it's outside the frustum
 
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), grassPosition);
         modelMatrix = glm::scale(modelMatrix, glm::vec3(1.0f, scaleY, 1.0f));

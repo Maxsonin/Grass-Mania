@@ -12,6 +12,7 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <vector>
 
 class Camera
 {
@@ -24,6 +25,8 @@ private:
 	glm::mat4 m_ProjectionMatrix;
 
 public:
+	std::string m_CameraName;
+
 	float pitch; float yaw; float roll;
 
 	const glm::vec3 m_UpVector = { 0.0f, 1.0f, 0.0f };
@@ -48,8 +51,9 @@ public:
 	int m_windowWidth, m_windowHeight;
 	float aspectRatio = 1.0f;
 
-	Camera(glm::vec3 cameraPosition, glm::vec3 pointToLookAt, int windowWidth, int windowHeight, bool isMain)
-		: m_CameraPosition(cameraPosition),
+	Camera(std::string cameraName, glm::vec3 cameraPosition, glm::vec3 pointToLookAt, int windowWidth, int windowHeight, bool isMain)
+		: m_CameraName(cameraName),
+		m_CameraPosition(cameraPosition),
 		m_windowWidth(windowWidth), m_windowHeight(windowHeight),
 		m_IsMain(isMain)
 	{
@@ -207,6 +211,170 @@ private:
 
 		// Update the right vector
 		m_RightVector = glm::normalize(glm::cross(m_UpVector, m_ViewDirection));
+	}
+};
+
+enum class CameraType
+{
+	BASIC_CAMERA, // No need for special handling
+	MAIN_CAMERA
+};
+
+class CameraManager
+{
+private:
+	Camera* m_MainCamera  = nullptr;
+	Camera* m_CameraInUse = nullptr;
+	std::vector<Camera*> m_Cameras;
+	int m_CurrentCameraIndex = 0; // Track the index of the currently active camera
+
+public:
+	void AddCamera(Camera* newCamera, CameraType cameraType, bool setInUse = false)
+	{
+		if (newCamera != nullptr)
+		{
+			m_Cameras.push_back(newCamera);
+
+			switch (cameraType)
+			{
+			case CameraType::BASIC_CAMERA:
+				break;
+
+			case CameraType::MAIN_CAMERA:
+				SetMainCamera(newCamera->m_CameraName);
+				break;
+			}
+
+			if (setInUse == true)
+			{
+				newCamera->m_InUse = true;
+				m_CameraInUse = newCamera;
+				m_CurrentCameraIndex = m_Cameras.size() - 1;
+			}
+		}
+		else
+		{
+			std::cout << "The new Camera is not initialized! CHANGES NOT APPLIED\n";
+		}
+	}
+
+	Camera* GetMainCamera() const { return m_MainCamera; }
+	Camera* GetCameraInUse() const { return m_CameraInUse; }
+	Camera* GetCamera(const std::string& cameraName) const
+	{
+		for (const auto& camera : m_Cameras)
+		{
+			if (camera->m_CameraName == cameraName)
+				return camera;
+		}
+
+		std::cout << "Camera with name: " << cameraName << " is NOT found\n";
+		return nullptr;
+	}
+
+	void SetMainCamera(const std::string& cameraName)
+	{
+		Camera* cameraToChange = GetCamera(cameraName);
+
+		if (cameraToChange != nullptr)
+		{
+			if (m_MainCamera != nullptr)
+			{
+				m_MainCamera->m_IsMain = false;
+			}
+
+			m_MainCamera = cameraToChange;
+			cameraToChange->m_IsMain = true;
+		}
+		else
+		{
+			std::cout << "The new MAIN Camera is not Initialized! CHANGES NOT APPLIED\n";
+		}
+	}
+	void SetCameraInUse(const std::string& cameraName)
+	{
+		Camera* cameraToChange = GetCamera(cameraName);
+
+		if (cameraToChange != nullptr)
+		{
+			if (m_CameraInUse != nullptr)
+			{
+				m_CameraInUse->m_InUse = false;
+			}
+
+			m_CameraInUse = cameraToChange;
+			cameraToChange->m_InUse = true;
+		}
+		else
+		{
+			std::cout << "The new Camera In Use is not Initialized! CHANGES NOT APPLIED\n";
+		}
+	}
+
+	void RemoveCamera(const std::string& cameraNameToRemove)
+	{
+		auto it = std::remove_if(m_Cameras.begin(), m_Cameras.end(),
+			[cameraNameToRemove](Camera* camera)
+		{
+			return camera->m_CameraName == cameraNameToRemove;
+		});
+
+		if (it != m_Cameras.end())
+		{
+			if (m_MainCamera && m_MainCamera->m_CameraName == cameraNameToRemove)
+			{
+				std::cout << "Removing main camera.\n";
+				m_MainCamera = nullptr;
+			}
+			if (m_CameraInUse && m_CameraInUse->m_CameraName == cameraNameToRemove)
+			{
+				std::cout << "Removing camera in use.\n";
+				m_CameraInUse = nullptr;
+			}
+
+			m_Cameras.erase(it, m_Cameras.end());
+		}
+		else
+		{
+			std::cout << "Camera not found.\n";
+		}
+	}
+
+	void ProccesInputs(GLFWwindow* window, float deltaTime)
+	{
+		static int currentCameraIndex = 0;
+
+		static bool cameraSwitching = false;
+		if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+		{
+			if (!cameraSwitching)
+			{
+				unsigned int indexOfNextCamera = m_CurrentCameraIndex + 1;
+				if (indexOfNextCamera >= m_Cameras.size())
+				{
+					indexOfNextCamera = 0;
+				}
+				m_CameraInUse->m_InUse = false;
+				m_CameraInUse = m_Cameras[indexOfNextCamera];
+				m_CameraInUse->m_InUse = true;
+
+				m_CurrentCameraIndex = indexOfNextCamera;
+				cameraSwitching = true;
+			}
+		}
+		else
+		{
+			cameraSwitching = false;
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+		{
+			m_MainCamera->ProcesssInputs(window, deltaTime);
+		}
+		else
+		{
+			m_CameraInUse->ProcesssInputs(window, deltaTime);
+		}
 	}
 };
 #endif

@@ -17,7 +17,7 @@ private:
 	ShaderProgram m_WorldShaderProgram;
 	ShaderProgram m_CameraShaderProgram;
 
-	Camera* m_Camera;
+	CameraManager* m_CameraManager;
 
 	int grassCount;
 
@@ -29,8 +29,8 @@ private:
 	GLuint worldVAO;
 
 public:
-	GrassRenderer(Camera* camera);
-	void Render(Camera* debugCam);
+	GrassRenderer(CameraManager* cameraManager);
+	void Render();
 };
 
 #endif

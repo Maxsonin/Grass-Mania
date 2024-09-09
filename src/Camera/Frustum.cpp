@@ -57,15 +57,19 @@ void drawFrustum(GLuint shaderProgram, const glm::mat4& viewMatrix, const glm::m
         will allow us to determine the coordinates of each point that defines the frustum.
     */
 
+    // For Frustum to look OK we set some limitations
+    float frustum_far = camera.m_FRUSTUM_FAR;
+    if (camera.m_FRUSTUM_FAR > 100.0f) { frustum_far = 100.0f; }
+
     // Calculate near and far plane dimensions
     float half_near_height = tan(glm::radians((float)camera.m_FOV) / 2.0f) * camera.m_FRUSTUM_NEAR;
     float half_near_width  = half_near_height * camera.aspectRatio;
-    float half_far_height  = tan(glm::radians((float)camera.m_FOV) / 2.0f) * camera.m_FRUSTUM_FAR;
+    float half_far_height  = tan(glm::radians((float)camera.m_FOV) / 2.0f) * frustum_far;
     float half_far_width   = half_far_height * camera.aspectRatio;
 
     // Calculate near and far plane center points 
     glm::vec3 near_center = camera.m_CameraPosition + camera.m_ViewDirection * camera.m_FRUSTUM_NEAR;
-    glm::vec3 far_center  = camera.m_CameraPosition + camera.m_ViewDirection * camera.m_FRUSTUM_FAR;
+    glm::vec3 far_center  = camera.m_CameraPosition + camera.m_ViewDirection * frustum_far;
 
     // Calculate near and far plane corner points
     glm::vec3 near_top_left     = near_center + (camera.m_UpVector * half_near_height) - (camera.m_RightVector * half_near_width);

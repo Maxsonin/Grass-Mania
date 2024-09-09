@@ -44,8 +44,10 @@ public:
 	int	m_FOV = 60;
 
 	// Frustum Related
-	const float m_FRUSTUM_NEAR = 10.0f;
-	const float m_FRUSTUM_FAR  = 100.0f;
+	const float m_FRUSTUM_NEAR = 1.0f;
+	const float m_FRUSTUM_FAR  = 200.0f;
+
+	const float m_DistOfLowPolly = 100.0f;
 
 	// Widnow Settings
 	int m_windowWidth, m_windowHeight;

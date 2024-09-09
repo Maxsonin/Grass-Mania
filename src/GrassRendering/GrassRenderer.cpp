@@ -11,6 +11,7 @@ GrassRenderer::GrassRenderer(CameraManager* cameraManager)
     : m_CameraManager(cameraManager)
 {
     m_GrassMesh = Mesh("./resources/models/grass.obj");
+    m_LowPollyGrassMesh = Mesh("./resources/models/lowPolyGrass.obj");
 
     m_GrassShaderProgram = ShaderProgram("GrassShader", "./resources/shaders/GrassVertex.glsl", "./resources/shaders/GrassFragment.glsl");
     m_CameraShaderProgram = ShaderProgram("CameraShader", "./resources/shaders/CameraVertex.glsl", "./resources/shaders/CameraFragment.glsl");
@@ -95,13 +96,16 @@ void GrassRenderer::Render()
     m_GrassShaderProgram.setMat4("u_ViewMatrix", m_CameraManager->GetCameraInUse()->GetViewMatrix());
     m_GrassShaderProgram.setMat4("u_ProjectionMatrix", m_CameraManager->GetCameraInUse()->GetProjectionMatrix());
 
-    m_GrassShaderProgram.setFloat("u_MinHeight", 5.0f); // Info from grass.obj
+    m_GrassShaderProgram.setFloat("u_MinHeight", 5.0f);
     m_GrassShaderProgram.setFloat("u_MaxHeight", 10.0f);
 
     for (GrassChunk grassChunk : m_GrassChunks)
     {
         if (!grassChunk.getCunkAABB().isOnFrustum(frustum)) continue; // Face Culling
-        else grassChunk.Render(m_GrassShaderProgram, m_GrassMesh, frustum);
+
+        float distance = glm::length(grassChunk.getPosition() - m_CameraManager->GetCameraInUse()->m_CameraPosition);
+        Mesh& meshToRender = distance < m_CameraManager->GetMainCamera()->m_DistOfLowPolly ? m_GrassMesh : m_LowPollyGrassMesh;
+        grassChunk.Render(m_GrassShaderProgram, meshToRender, frustum);
     }
 
     m_GrassShaderProgram.Unbind();

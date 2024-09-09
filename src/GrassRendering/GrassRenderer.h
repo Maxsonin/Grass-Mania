@@ -14,6 +14,7 @@ class GrassRenderer
 {
 private:
 	Mesh m_GrassMesh;
+	Mesh m_LowPollyGrassMesh;
 
 	ShaderProgram m_GrassShaderProgram;
 	ShaderProgram m_WorldShaderProgram;

@@ -6,7 +6,8 @@
 
 GrassChunk::GrassChunk(glm::vec2 chunkPosition, unsigned int chunkSideLenght, unsigned int GrassObjPerChunk)
 	: m_ChunkAABB(glm::vec3(chunkPosition.x, 0.0f, chunkPosition.y),
-				  glm::vec3(chunkPosition.x + chunkSideLenght, 5.0f, chunkPosition.y + chunkSideLenght))
+				  glm::vec3(chunkPosition.x + chunkSideLenght, 5.0f, chunkPosition.y + chunkSideLenght)),
+    m_Position(chunkPosition)
 {
 	m_GrassPositions.reserve(GrassObjPerChunk);
 

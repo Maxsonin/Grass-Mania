@@ -14,6 +14,7 @@ class Mesh
 private:
     std::vector<Vertex> m_Vertices;  
     GLuint m_VAOrendererID = 0;
+    GLuint m_VBOinstanceID = 0;
 
 public:
     Mesh() = default;
@@ -39,6 +40,15 @@ public:
         glEnableVertexAttribArray(1); // Vertex Normals
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 
+        // Instance Buffer Initialization
+        glGenBuffers(1, &m_VBOinstanceID);
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBOinstanceID);
+        glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STREAM_DRAW); // Allocate empty buffer initially
+
+        glEnableVertexAttribArray(2); // Instance Offset
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+        glVertexAttribDivisor(2, 1);
+
         // Unbind everything
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -46,12 +56,20 @@ public:
         glCheckError();
     }
 
-    void Render(ShaderProgram& shaderProgram)
+    void SetInstanceData(const std::vector<glm::vec2>& instanceData)
+    {
+        glBindVertexArray(m_VAOrendererID);
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBOinstanceID);
+        glBufferData(GL_ARRAY_BUFFER, instanceData.size() * sizeof(glm::vec2), instanceData.data(), GL_STREAM_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glCheckError();
+    }
+
+    void RenderInstanced(ShaderProgram& shaderProgram, unsigned int instanceCount)
     {
         shaderProgram.Bind(); glBindVertexArray(m_VAOrendererID);
-        glDrawArrays(GL_TRIANGLES, 0, m_Vertices.size());
+        glDrawArraysInstanced(GL_TRIANGLES, 0, m_Vertices.size(), instanceCount);
         glCheckError();
     }
 };
-
 #endif

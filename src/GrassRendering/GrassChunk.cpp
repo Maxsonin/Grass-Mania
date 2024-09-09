@@ -24,23 +24,30 @@ GrassChunk::GrassChunk(glm::vec2 chunkPosition, unsigned int chunkSideLenght, un
 
 void GrassChunk::Render(ShaderProgram grassShaderProgram, Mesh& grassMesh, CameraFrustum frustum)
 {
-    AABB grassAABB(glm::vec3(0.0f), glm::vec3(0.1f, 5.0f, 0.3f)); // info from grass.obj
-    for (size_t i = 0; i < m_GrassPositions.size(); i++)
-    {
-        glm::vec2 grassPosition = m_GrassPositions[i];
+    std::vector<glm::vec2> visibleGrassPositions;
+    visibleGrassPositions.reserve(m_GrassPositions.size());
 
+    AABB grassAABB(glm::vec3(0.0f), glm::vec3(0.1f, 5.0f, 0.3f)); // info from grass.obj
+
+    // Perform frustum culling for each grass blade
+    for (const auto& grassPosition : m_GrassPositions)
+    {
         glm::vec3 minPoint = glm::vec3(grassPosition.x, 0.0f, grassPosition.y);
         glm::vec3 maxPoint = glm::vec3(grassPosition.x + 0.1f, 5.0f, grassPosition.y + 0.3f);
         grassAABB.Update(minPoint, maxPoint);
 
-        // Perform frustum culling
-        if (!grassAABB.isOnFrustum(frustum)) continue; // Skip rendering this grass mesh if it's outside the frustum
+        if (grassAABB.isOnFrustum(frustum))
+        {
+            visibleGrassPositions.push_back(grassPosition);
+        }
+    }
 
-        glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(grassPosition.x, 0.0f, grassPosition.y));
-        grassShaderProgram.setMat4("u_ModelMatrix", modelMatrix);
-
+    if (!visibleGrassPositions.empty())
+    {
+        grassMesh.SetInstanceData(visibleGrassPositions);
         glCheckError();
-        grassMesh.Render(grassShaderProgram);
+
+        grassMesh.RenderInstanced(grassShaderProgram, visibleGrassPositions.size());
         glCheckError();
     }
 }

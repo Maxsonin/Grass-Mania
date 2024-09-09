@@ -81,12 +81,14 @@ void GrassRenderer::Render()
     glCheckError();
 #pragma endregion
 
-    m_CameraShaderProgram.Bind();
     frustum = CreateCameraFrustum(*m_CameraManager->GetMainCamera());
-    drawFrustum(m_CameraShaderProgram.m_RendererID, m_CameraManager->GetCameraInUse()->GetViewMatrix(), m_CameraManager->GetMainCamera()->GetProjectionMatrix(), *m_CameraManager->GetMainCamera());
-    m_CameraShaderProgram.Unbind();
-
-    glCheckError();
+    if (m_CameraManager->GetMainCamera() != m_CameraManager->GetCameraInUse())
+    {
+        m_CameraShaderProgram.Bind();
+        drawFrustum(m_CameraShaderProgram.m_RendererID, m_CameraManager->GetCameraInUse()->GetViewMatrix(), m_CameraManager->GetMainCamera()->GetProjectionMatrix(), *m_CameraManager->GetMainCamera());
+        m_CameraShaderProgram.Unbind();
+        glCheckError();
+    }
 
     m_GrassShaderProgram.Bind();
 

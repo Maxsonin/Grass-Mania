@@ -13,7 +13,7 @@ class Mesh
 {
 private:
     std::vector<Vertex> vertices;
-
+    
     GLuint m_VAOrendererID = 0;
 
 public:

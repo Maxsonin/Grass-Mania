@@ -7,6 +7,7 @@
 #include "../Camera.h"
 #include "Mesh.h"
 #include "../Utility/Frustum.h"
+#include "GrassChunk.h"
 
 class GrassRenderer
 {
@@ -19,12 +20,15 @@ private:
 
 	CameraManager* m_CameraManager;
 
-	int grassCount;
+	const unsigned int m_MeshesPerChunk = 1500;
+	const unsigned int m_ChunkSideLenght = 25;
 
 	CameraFrustum frustum;
 
-	std::vector<glm::vec3> m_GrassPositions;
-	std::vector<int>       m_GrassheightScaleFactor;
+	std::vector<GrassChunk> m_GrassChunks;
+
+	unsigned int m_NumOfChunks = 36;
+
 
 	GLuint worldVAO;
 

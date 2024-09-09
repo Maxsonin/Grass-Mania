@@ -47,31 +47,21 @@ GrassRenderer::GrassRenderer(CameraManager* cameraManager)
 
 #pragma endregion
 
-    float minX = 0.0f;
-    float maxX = 150.0f;
-    float minZ = 0.0f;
-    float maxZ = 150.0f;
-
-    grassCount = 1500 * maxX / 10;
-
-    for (size_t i = 0; i < grassCount; i++)
+    int end = sqrt(m_NumOfChunks);
+    int chunksLeft = m_NumOfChunks;
+    for (size_t x = 0; x < end; x++)
     {
-        float x = Random::GenerateFloat(minX, maxX);
-        float z = Random::GenerateFloat(minZ, maxZ);
-
-        m_GrassPositions.push_back(glm::vec3(x, 0.0f, z));
-    }
-
-    for (size_t i = 0; i < grassCount; i++)
-    {
-        m_GrassheightScaleFactor.push_back(Random::GenerateFloat(1.0f, 2.0f));
+        for (size_t z = 0; z < end; z++)
+        {
+            if (chunksLeft <= 0) { return; }
+            m_GrassChunks.push_back(GrassChunk(glm::vec2(m_ChunkSideLenght * x, m_ChunkSideLenght * z), m_ChunkSideLenght, m_MeshesPerChunk));
+            chunksLeft--;
+        }
     }
 }
 
 void GrassRenderer::Render()
 {
-    frustum = CreateCameraFrustum(*m_CameraManager->GetMainCamera());
-
 #pragma region plane
     // Render the plane first
     m_WorldShaderProgram.Bind();
@@ -91,8 +81,8 @@ void GrassRenderer::Render()
 
 #pragma endregion
 
+    frustum = CreateCameraFrustum(*m_CameraManager->GetMainCamera());
     drawFrustum(m_CameraShaderProgram.m_RendererID, m_CameraManager->GetCameraInUse()->GetViewMatrix(), m_CameraManager->GetMainCamera()->GetProjectionMatrix(), *m_CameraManager->GetMainCamera());
-
     glCheckError();
 
     m_GrassShaderProgram.Bind();
@@ -103,26 +93,9 @@ void GrassRenderer::Render()
     m_GrassShaderProgram.setFloat("u_MinHeight", 5.0f); // Info from grass.obj
     m_GrassShaderProgram.setFloat("u_MaxHeight", 10.0f);
 
-    for (size_t i = 0; i < grassCount; i++)
+    for (GrassChunk grassChunk : m_GrassChunks)
     {
-        glm::vec3 grassPosition = m_GrassPositions[i];
-        float scaleY = m_GrassheightScaleFactor[i];
-
-        // Create AABB for the grass instance
-        glm::vec3 minPoint = grassPosition;
-        glm::vec3 maxPoint = grassPosition + glm::vec3(0.1f, 5.0f * scaleY, 0.3f);
-        AABB grassAABB(minPoint, maxPoint);
-
-        // Perform frustum culling
-        if (!grassAABB.isOnFrustum(frustum)) continue; // Skip rendering this grass mesh if it's outside the frustum
-
-        glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), grassPosition);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(1.0f, scaleY, 1.0f));
-        m_GrassShaderProgram.setMat4("u_ModelMatrix", modelMatrix);
-
-        glCheckError();
-        m_GrassMesh.Render(m_GrassShaderProgram);
-        glCheckError();
+        grassChunk.Render(m_GrassShaderProgram, m_GrassMesh, frustum);
     }
 
     m_GrassShaderProgram.Unbind();

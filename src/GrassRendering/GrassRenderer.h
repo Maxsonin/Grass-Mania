@@ -1,13 +1,14 @@
 #ifndef GRASS_RENDERER
-#define GRASS_REBDERER
+#define GRASS_RENDERER
 
 #include <vector>
+
 #include <glm/glm.hpp>
 
-#include "../Camera.h"
-#include "Mesh.h"
-#include "../Utility/Frustum.h"
+#include "../Camera/Camera.h"
+#include "../Camera/Frustum.h"
 #include "GrassChunk.h"
+#include "Mesh.h"
 
 class GrassRenderer
 {

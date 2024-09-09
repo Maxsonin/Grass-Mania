@@ -29,7 +29,6 @@ void GrassChunk::Render(ShaderProgram grassShaderProgram, Mesh& grassMesh, Camer
     {
         glm::vec2 grassPosition = m_GrassPositions[i];
 
-        // Create AABB for the grass instance
         glm::vec3 minPoint = glm::vec3(grassPosition.x, 0.0f, grassPosition.y);
         glm::vec3 maxPoint = glm::vec3(grassPosition.x + 0.1f, 5.0f, grassPosition.y + 0.3f);
         grassAABB.Update(minPoint, maxPoint);

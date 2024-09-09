@@ -12,8 +12,7 @@
 class Mesh
 {
 private:
-    std::vector<Vertex> vertices;
-    
+    std::vector<Vertex> m_Vertices;  
     GLuint m_VAOrendererID = 0;
 
 public:
@@ -21,7 +20,7 @@ public:
 
     Mesh(const std::string& filepath)
     {
-        OBJLoader::LoadOBJ(filepath, vertices);
+        OBJLoader::LoadOBJ(filepath, m_Vertices);
 
         // Vertex Array Initialization
         glGenVertexArrays(1, &m_VAOrendererID);
@@ -31,7 +30,7 @@ public:
         GLuint VBOrendererID;
         glGenBuffers(1, &VBOrendererID);
         glBindBuffer(GL_ARRAY_BUFFER, VBOrendererID);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), m_Vertices.data(), GL_STATIC_DRAW);
 
         // Vertex Attributes Setup
         glEnableVertexAttribArray(0); // Vertex Positions
@@ -50,7 +49,7 @@ public:
     void Render(ShaderProgram& shaderProgram)
     {
         shaderProgram.Bind(); glBindVertexArray(m_VAOrendererID);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+        glDrawArrays(GL_TRIANGLES, 0, m_Vertices.size());
         glCheckError();
     }
 };

@@ -6,7 +6,7 @@
 #include "Utility/Debugging.h"
 
 #include "GrassRendering/Mesh.h"
-#include "Camera.h"
+#include "Camera/Camera.h"
 #include "GrassRendering/GrassRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -65,6 +65,8 @@ int main()
 
     glfwSwapInterval(0); // V-Sync
 
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
 #pragma endregion
 
     glm::vec3 mainCamPosition = { 0.0f, 20.0f, 0.0f }; glm::vec3 mainCamTarget   = { 50.0f, 0.0f, 50.0f };
@@ -88,8 +90,10 @@ int main()
     while (!glfwWindowShouldClose(applicationWindow))
     {
         // Update deltaTime
-        deltaTime = glfwGetTime() - previousTimeFrame;
-        previousTimeFrame = glfwGetTime();
+        double currentTime = glfwGetTime();
+        deltaTime = currentTime - previousTimeFrame;
+        previousTimeFrame = currentTime;
+        elapsedTime = currentTime - previousTime;
 
         // PRE DRAW
         glfwPollEvents();
@@ -97,7 +101,6 @@ int main()
         cameraManager.ProccesInputs(applicationWindow, deltaTime);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
         // MAIN RENDERING LOGIC
         glCheckError();
@@ -111,13 +114,12 @@ int main()
 
         // FPS Counter
         frameCount++;
-        elapsedTime = glfwGetTime() - previousTime;
         if (elapsedTime >= 1.0) // 1 second
         {
             FPS = int(frameCount / elapsedTime);
-            previousTime = glfwGetTime(); frameCount = 0;
-
             glfwSetWindowTitle(applicationWindow, ("Grass Mania | FPS: " + std::to_string(FPS)).c_str());
+
+            previousTime = glfwGetTime(); frameCount = 0;
         }
     }
 

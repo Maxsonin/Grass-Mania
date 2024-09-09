@@ -2,7 +2,7 @@
 #define FRUSTUM
 
 #include <glm/glm.hpp>
-#include "../Camera.h"
+#include "Camera.h"
 
 struct Plane
 {

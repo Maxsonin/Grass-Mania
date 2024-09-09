@@ -2,8 +2,9 @@
 #define RANDOM
 
 #include <random>
+#include <limits>
+#include <algorithm>
 
-// Class Random is a static utility class for generating random numbers integer, float and double.
 class Random
 {
 public:

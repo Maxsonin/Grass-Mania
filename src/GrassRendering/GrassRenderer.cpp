@@ -43,10 +43,12 @@ GrassRenderer::GrassRenderer(CameraManager* cameraManager)
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glCheckError();
+    m_WorldShaderProgram.Unbind();
 
+    glCheckError();
 #pragma endregion
 
+    // Create Chunks
     int end = sqrt(m_NumOfChunks);
     int chunksLeft = m_NumOfChunks;
     for (size_t x = 0; x < end; x++)
@@ -63,7 +65,6 @@ GrassRenderer::GrassRenderer(CameraManager* cameraManager)
 void GrassRenderer::Render()
 {
 #pragma region plane
-    // Render the plane first
     m_WorldShaderProgram.Bind();
 
     glm::mat4 planeModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(15.0f, 1.0f, 15.0f));
@@ -78,11 +79,13 @@ void GrassRenderer::Render()
     m_WorldShaderProgram.Unbind();
 
     glCheckError();
-
 #pragma endregion
 
+    m_CameraShaderProgram.Bind();
     frustum = CreateCameraFrustum(*m_CameraManager->GetMainCamera());
     drawFrustum(m_CameraShaderProgram.m_RendererID, m_CameraManager->GetCameraInUse()->GetViewMatrix(), m_CameraManager->GetMainCamera()->GetProjectionMatrix(), *m_CameraManager->GetMainCamera());
+    m_CameraShaderProgram.Unbind();
+
     glCheckError();
 
     m_GrassShaderProgram.Bind();
@@ -95,7 +98,7 @@ void GrassRenderer::Render()
 
     for (GrassChunk grassChunk : m_GrassChunks)
     {
-        if (!grassChunk.getCunkAABB().isOnFrustum(frustum)) continue;
+        if (!grassChunk.getCunkAABB().isOnFrustum(frustum)) continue; // Face Culling
         else grassChunk.Render(m_GrassShaderProgram, m_GrassMesh, frustum);
     }
 

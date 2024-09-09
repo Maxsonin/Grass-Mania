@@ -1,8 +1,9 @@
 #ifndef GRASS_CHUNK
 #define GRASS_CHUNK
 
-#include "../Utility/Frustum.h"
 #include <vector>
+
+#include "../Camera/Frustum.h"
 #include "Mesh.h"
 
 class GrassChunk

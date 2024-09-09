@@ -43,6 +43,7 @@ struct AABB
         */
     {};
 
+    inline void Update(const glm::vec3& min, const glm::vec3& max) { center = (min + max) * 0.5f; extents = max - center; }
     bool isOnFrustum(const CameraFrustum& frustum) const;
     bool isOnOrForwardPlane(const Plane& plane) const;
 };

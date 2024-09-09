@@ -6,7 +6,7 @@
 
 GrassChunk::GrassChunk(glm::vec2 chunkPosition, unsigned int chunkSideLenght, unsigned int GrassObjPerChunk)
 	: m_ChunkAABB(glm::vec3(chunkPosition.x, 0.0f, chunkPosition.y),
-				  glm::vec3(chunkPosition.x + 0.1f, 5.0f, chunkPosition.y + 0.f))
+				  glm::vec3(chunkPosition.x + chunkSideLenght, 5.0f, chunkPosition.y + chunkSideLenght))
 {
 	m_GrassPositions.reserve(GrassObjPerChunk);
 
@@ -24,6 +24,7 @@ GrassChunk::GrassChunk(glm::vec2 chunkPosition, unsigned int chunkSideLenght, un
 
 void GrassChunk::Render(ShaderProgram grassShaderProgram, Mesh& grassMesh, CameraFrustum frustum)
 {
+    AABB grassAABB(glm::vec3(0.0f), glm::vec3(0.1f, 5.0f, 0.3f)); // info from grass.obj
     for (size_t i = 0; i < m_GrassPositions.size(); i++)
     {
         glm::vec2 grassPosition = m_GrassPositions[i];
@@ -31,7 +32,7 @@ void GrassChunk::Render(ShaderProgram grassShaderProgram, Mesh& grassMesh, Camer
         // Create AABB for the grass instance
         glm::vec3 minPoint = glm::vec3(grassPosition.x, 0.0f, grassPosition.y);
         glm::vec3 maxPoint = glm::vec3(grassPosition.x + 0.1f, 5.0f, grassPosition.y + 0.3f);
-        AABB grassAABB(minPoint, maxPoint);
+        grassAABB.Update(minPoint, maxPoint);
 
         // Perform frustum culling
         if (!grassAABB.isOnFrustum(frustum)) continue; // Skip rendering this grass mesh if it's outside the frustum

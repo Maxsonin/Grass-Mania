@@ -95,7 +95,8 @@ void GrassRenderer::Render()
 
     for (GrassChunk grassChunk : m_GrassChunks)
     {
-        grassChunk.Render(m_GrassShaderProgram, m_GrassMesh, frustum);
+        if (!grassChunk.getCunkAABB().isOnFrustum(frustum)) continue;
+        else grassChunk.Render(m_GrassShaderProgram, m_GrassMesh, frustum);
     }
 
     m_GrassShaderProgram.Unbind();

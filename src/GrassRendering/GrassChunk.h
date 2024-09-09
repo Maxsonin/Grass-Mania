@@ -12,6 +12,8 @@ private:
 	std::vector<glm::vec2> m_GrassPositions;
 
 public:
+	AABB getCunkAABB() { return m_ChunkAABB; }
+
 	GrassChunk(glm::vec2 chunkPosition, unsigned int chunkSideLenght, unsigned int GrassObjPerChunk);
 	void Render(ShaderProgram grassShaderProgram, Mesh& grassMesh, CameraFrustum frustum);
 };

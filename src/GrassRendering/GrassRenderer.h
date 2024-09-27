@@ -21,14 +21,14 @@ private:
 
 	CameraManager* m_CameraManager;
 
-	const int m_MeshesPerChunk = 1000;
+	const int m_MeshesPerChunk = 700;
 	const int m_ChunkSideLenght = 25;
 
 	CameraFrustum frustum;
 
 	std::vector<GrassChunk> m_GrassChunks;
 
-	unsigned int m_NumOfLayars = 100;
+	unsigned int m_NumOfLayars = 17;
 
 public:
 	GrassRenderer(CameraManager* cameraManager);

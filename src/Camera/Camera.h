@@ -39,15 +39,15 @@ public:
 	bool m_InUse = false;
 
 	const float m_NEAR = 0.001f;
-	const float m_FAR  = 100'000.0f;
+	const float m_FAR  = 1'000.0f;
 
 	int	m_FOV = 60;
 
 	// Frustum Related
 	const float m_FRUSTUM_NEAR = 1.0f;
-	const float m_FRUSTUM_FAR  = 200.0f;
+	const float m_FRUSTUM_FAR  = 400.0f;
 
-	const float m_DistOfLowPolly = 100.0f;
+	const float m_DistOfLowPolly = 350.0f;
 
 	// Widnow Settings
 	int m_windowWidth, m_windowHeight;

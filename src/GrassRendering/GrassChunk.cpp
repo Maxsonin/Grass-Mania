@@ -4,23 +4,24 @@
 #include "../Utility/Random.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-GrassChunk::GrassChunk(glm::vec2 chunkPosition, unsigned int chunkSideLenght, unsigned int GrassObjPerChunk)
-	: m_ChunkAABB(glm::vec3(chunkPosition.x, 0.0f, chunkPosition.y),
-				  glm::vec3(chunkPosition.x + chunkSideLenght, 5.0f, chunkPosition.y + chunkSideLenght)),
+GrassChunk::GrassChunk(glm::vec2 chunkPosition, int chunkSideLenght, unsigned int GrassObjPerChunk)
+    : m_ChunkAABB(glm::vec3(chunkPosition.x, 0.0f, chunkPosition.y),
+        glm::vec3(chunkPosition.x + chunkSideLenght, 5.0f, chunkPosition.y + chunkSideLenght)),
     m_Position(chunkPosition)
 {
-	m_GrassPositions.reserve(GrassObjPerChunk);
+    m_GrassPositions.reserve(GrassObjPerChunk);
 
-	unsigned int startPosX = chunkPosition.x; unsigned int startPosZ = chunkPosition.y;
-	unsigned int endPosX = chunkPosition.x + chunkSideLenght;
-	unsigned int endPosZ = chunkPosition.y + chunkSideLenght;
-	for (size_t i = 0; i < GrassObjPerChunk; i++)
-	{
-		float x = Random::GenerateFloat(startPosX, endPosX);
-		float z = Random::GenerateFloat(startPosZ, endPosZ);
+    int startPosX = chunkPosition.x;
+    int startPosZ = chunkPosition.y;
+    int endPosX = chunkPosition.x + chunkSideLenght;
+    int endPosZ = chunkPosition.y + chunkSideLenght;
+    for (size_t i = 0; i < GrassObjPerChunk; i++)
+    {
+        float x = Random::GenerateFloat(startPosX, endPosX);
+        float z = Random::GenerateFloat(startPosZ, endPosZ);
 
-		m_GrassPositions.push_back(glm::vec2(x, z));
-	}
+        m_GrassPositions.push_back(glm::vec2(x, z));
+    }
 }
 
 void GrassChunk::Render(ShaderProgram grassShaderProgram, Mesh& grassMesh, CameraFrustum frustum)

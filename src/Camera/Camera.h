@@ -39,7 +39,7 @@ public:
 	bool m_InUse = false;
 
 	const float m_NEAR = 0.001f;
-	const float m_FAR  = 1000.0f;
+	const float m_FAR  = 100'000.0f;
 
 	int	m_FOV = 60;
 

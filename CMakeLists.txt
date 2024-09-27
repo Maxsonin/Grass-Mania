@@ -13,9 +13,9 @@ add_executable(GrassMania ${MY_SOURCES})
 
 target_link_libraries(GrassMania PUBLIC glfw glm gl3w)
 
-# Copy the resources folder to the build directory
-add_custom_command(
-    TARGET GrassMania POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:GrassMania>/resources
-)
+add_custom_target(copy_resources ALL
+				COMMAND ${CMAKE_COMMAND} -E copy_directory
+				${PROJECT_SOURCE_DIR}/resources
+				${PROJECT_BINARY_DIR}/resources)
+
+add_dependencies(GrassMania copy_resources)

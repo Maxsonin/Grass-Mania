@@ -16,72 +16,35 @@ GrassRenderer::GrassRenderer(CameraManager* cameraManager)
     m_GrassShaderProgram = ShaderProgram("GrassShader", "./resources/shaders/GrassVertex.glsl", "./resources/shaders/GrassFragment.glsl");
     m_CameraShaderProgram = ShaderProgram("CameraShader", "./resources/shaders/CameraVertex.glsl", "./resources/shaders/CameraFragment.glsl");
 
-#pragma region plane
-    m_WorldShaderProgram = ShaderProgram("WorldShader", "./resources/shaders/WorldVertex.glsl", "./resources/shaders/WorldFragment.glsl");
-
-    m_WorldShaderProgram.Bind();
-
-    float plane[] =
-    {
-        0.0f,  0.0f, 0.0f,
-        0.0f,  0.0f, 10.0f,
-        10.0f, 0.0f, 10.0f,
-
-        10.0f, 0.0f, 10.0f,
-        10.0f,  0.0f, 0.0f,
-        0.0f,  0.0f, 0.0f
-    };
-
-    GLuint worldVBO = 0;
-    glGenBuffers(1, &worldVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, worldVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
-
-    glGenVertexArrays(1, &worldVAO);
-    glBindVertexArray(worldVAO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    m_WorldShaderProgram.Unbind();
-
     glCheckError();
-#pragma endregion
 
-    // Create Chunks
-    int end = sqrt(m_NumOfChunks);
-    int chunksLeft = m_NumOfChunks;
-    for (size_t x = 0; x < end; x++)
+    // Set number of m_NumOfLayars
+    int numChunks = (2 * m_NumOfLayars + 1) * (2 * m_NumOfLayars + 1); // Calculate total chunks for the specified m_NumOfLayars
+    int chunksLeft = numChunks;
+
+    // Create Chunks in a square-like expanding pattern from (0, 0)
+    int currentLayer = 0;
+
+    while (chunksLeft > 0 && currentLayer < m_NumOfLayars)
     {
-        for (size_t z = 0; z < end; z++)
+        for (int x = -currentLayer; x <= currentLayer && chunksLeft > 0; ++x)
         {
-            if (chunksLeft <= 0) { return; }
-            m_GrassChunks.push_back(GrassChunk(glm::vec2(m_ChunkSideLenght * x, m_ChunkSideLenght * z), m_ChunkSideLenght, m_MeshesPerChunk));
-            chunksLeft--;
+            for (int z = -currentLayer; z <= currentLayer && chunksLeft > 0; ++z)
+            {
+                // Check if the current position is on the boundary of the current layer
+                if (abs(x) == currentLayer || abs(z) == currentLayer)
+                {
+                    m_GrassChunks.push_back(GrassChunk(glm::vec2(m_ChunkSideLenght * x, m_ChunkSideLenght * z), m_ChunkSideLenght, m_MeshesPerChunk));
+                    chunksLeft--;
+                }
+            }
         }
+        currentLayer++; // Move to the next layer
     }
 }
 
 void GrassRenderer::Render()
 {
-#pragma region plane
-    m_WorldShaderProgram.Bind();
-
-    glm::mat4 planeModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(15.0f, 1.0f, 15.0f));
-    m_WorldShaderProgram.setMat4("u_ModelMatrix", planeModelMatrix);
-
-    m_WorldShaderProgram.setMat4("u_ViewMatrix", m_CameraManager->GetCameraInUse()->GetViewMatrix());
-    m_WorldShaderProgram.setMat4("u_ProjectionMatrix", m_CameraManager->GetCameraInUse()->GetProjectionMatrix());
-
-    glBindVertexArray(worldVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
-    m_WorldShaderProgram.Unbind();
-
-    glCheckError();
-#pragma endregion
-
     frustum = CreateCameraFrustum(*m_CameraManager->GetMainCamera());
     if (m_CameraManager->GetMainCamera() != m_CameraManager->GetCameraInUse())
     {
@@ -99,11 +62,13 @@ void GrassRenderer::Render()
     m_GrassShaderProgram.setFloat("u_MinHeight", 5.0f);
     m_GrassShaderProgram.setFloat("u_MaxHeight", 10.0f);
 
+    m_GrassShaderProgram.setFloat("u_Time", glfwGetTime());
+
     for (GrassChunk grassChunk : m_GrassChunks)
     {
         if (!grassChunk.getCunkAABB().isOnFrustum(frustum)) continue; // Face Culling
 
-        float distance = glm::length(grassChunk.getPosition() - m_CameraManager->GetCameraInUse()->m_CameraPosition);
+        float distance = glm::length(grassChunk.getPosition() - m_CameraManager->GetMainCamera()->m_CameraPosition);
         Mesh& meshToRender = distance < m_CameraManager->GetMainCamera()->m_DistOfLowPolly ? m_GrassMesh : m_LowPollyGrassMesh;
         grassChunk.Render(m_GrassShaderProgram, meshToRender, frustum);
     }

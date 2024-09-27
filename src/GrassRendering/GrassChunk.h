@@ -16,7 +16,7 @@ private:
 public:
 	AABB getCunkAABB() { return m_ChunkAABB; }
 	glm::vec3 getPosition() const { return glm::vec3(m_Position.x, 0.0f, m_Position.y); }
-	GrassChunk(glm::vec2 chunkPosition, unsigned int chunkSideLenght, unsigned int GrassObjPerChunk);
+	GrassChunk(glm::vec2 chunkPosition, int chunkSideLenght, unsigned int GrassObjPerChunk);
 	void Render(ShaderProgram grassShaderProgram, Mesh& grassMesh, CameraFrustum frustum);
 };
 #endif // !GRASS_CHUNK

@@ -17,22 +17,18 @@ private:
 	Mesh m_LowPollyGrassMesh;
 
 	ShaderProgram m_GrassShaderProgram;
-	ShaderProgram m_WorldShaderProgram;
 	ShaderProgram m_CameraShaderProgram;
 
 	CameraManager* m_CameraManager;
 
-	const unsigned int m_MeshesPerChunk = 1500;
-	const unsigned int m_ChunkSideLenght = 25;
+	const int m_MeshesPerChunk = 1000;
+	const int m_ChunkSideLenght = 25;
 
 	CameraFrustum frustum;
 
 	std::vector<GrassChunk> m_GrassChunks;
 
-	unsigned int m_NumOfChunks = 36;
-
-
-	GLuint worldVAO;
+	unsigned int m_NumOfLayars = 100;
 
 public:
 	GrassRenderer(CameraManager* cameraManager);

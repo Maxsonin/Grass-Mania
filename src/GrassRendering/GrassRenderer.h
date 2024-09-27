@@ -21,8 +21,8 @@ private:
 
 	CameraManager* m_CameraManager;
 
-	const int m_MeshesPerChunk = 700;
-	const int m_ChunkSideLenght = 25;
+	const int m_MeshesPerChunk = 1500;
+	const int m_ChunkSideLenght = 50;
 
 	CameraFrustum frustum;
 

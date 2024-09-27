@@ -19,9 +19,6 @@ GrassRenderer::GrassRenderer(CameraManager* cameraManager)
 
     glCheckError();
 
-    // Start measuring time
-    auto start = std::chrono::high_resolution_clock::now();
-
     // Set number of m_NumOfLayars
     int numChunks = (2 * m_NumOfLayars + 1) * (2 * m_NumOfLayars + 1); // Calculate total chunks for the specified m_NumOfLayars
     int chunksLeft = numChunks;
@@ -46,13 +43,8 @@ GrassRenderer::GrassRenderer(CameraManager* cameraManager)
         currentLayer++; // Move to the next layer
     }
 
-    // End measuring time
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = end - start;
-
     std::cout << "Chunks created: " << m_GrassChunks.size() << std::endl;
     std::cout << "Grass Meshes: " << m_GrassChunks.size() * m_MeshesPerChunk << std::endl;
-    std::cout << "Time taken to create chunks: " << elapsed.count() << " seconds" << std::endl;
 }
 
 void GrassRenderer::Render()
